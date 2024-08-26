@@ -257,19 +257,23 @@ function playSavedMelody(index) {
         }
 
         function generateSoundData(data, melody, sampleRate) {
-            for (let i = 0; i < data.length; i++) {
-                data[i] = 0; // Initialize with silence
+    const timePerGrid = 0.25; // 각 그리드의 재생 시간(초)
+    const samplesPerGrid = sampleRate * timePerGrid; // 그리드당 샘플 수
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = 0; // Initialize with silence
+    }
+    
+    melody.forEach((note, index) => {
+        if (note && noteFrequencies[note] > 0) {
+            let frequency = noteFrequencies[note];
+            let startTime = index * samplesPerGrid;
+            for (let i = 0; i < samplesPerGrid; i++) {
+                data[startTime + i] += Math.sin(2 * Math.PI * frequency * (i / sampleRate));
             }
-            melody.forEach((note, index) => {
-                if (note && noteFrequencies[note] > 0) {
-                    let frequency = noteFrequencies[note];
-                    let startTime = index * (sampleRate / 16);
-                    for (let i = 0; i < sampleRate / 16; i++) {
-                        data[startTime + i] += Math.sin(2 * Math.PI * frequency * (i / sampleRate));
-                    }
-                }
-            });
         }
+    });
+}
 
         function audioBufferToWav(buffer) {
             let numOfChan = buffer.numberOfChannels,
